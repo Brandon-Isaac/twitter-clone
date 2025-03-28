@@ -1,11 +1,11 @@
-<div class="app-container">
+<div class="container">
   <!-- Header -->
-  <header class="header">
+  <header class="navbar">
     <div class="header-content">
       <h1>Twitter Clone</h1>
       <div class="search-container">
         <select
-          class="search-select"
+          class="search"
           [(ngModel)]="selectedUserId"
           (change)="onUserSelect()"
         >
@@ -17,38 +17,20 @@
     </div>
   </header>
 
-  <!-- Profile Section -->
-  <div class="profile-banner" *ngIf="selectedUser">
-    <div class="profile-container">
-      <div class="profile-image">
-        <img src="https://via.placeholder.com/100" alt="Profile" />
-      </div>
-      <div class="profile-info">
-        <h2>{{ selectedUser.name }}</h2>
-        <p>{{ selectedUser.username }}</p>
-        <p>{{ selectedUser.company?.catchPhrase }}</p>
-        <div class="profile-stats">
-          <span>200 Following</span>
-          <span>200 Followers</span>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Posts Section -->
   <div class="posts-container">
     <div *ngFor="let post of posts" class="post-card">
-      <div class="post-header">
+      <div class="header">
         <img src="https://via.placeholder.com/50" alt="Avatar" />
-        <div class="post-user-info">
-          <h3>{{ selectedUser?.name }}</h3>
+        <div class="info">
+          <h3 class="username">{{ selectedUser?.name }}</h3>
           <p>{{ post.title }}</p>
         </div>
       </div>
-      <div class="post-content">
+      <div class="content">
         <p>{{ post.body }}</p>
       </div>
-      <div class="post-actions">
+      <div class="actions">
         <span>💬 {{ comments.length }}</span>
         <span>🔁 200</span>
         <span>❤️ 200</span>
@@ -66,7 +48,7 @@
           <p>{{ comment.email }}</p>
         </div>
       </div>
-      <div class="comment-content">
+      <div class="content">
         <p>{{ comment.body }}</p>
       </div>
     </div>

@@ -11,11 +11,7 @@ import { User, Post, Comment } from './interface';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './app.component.html',
-  styles: [
-    `
-      /* ... previous styles remain the same ... */
-    `,
-  ],
+  styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
   users: User[] = [];
