@@ -38,7 +38,7 @@
       >
         <h4 (click)="onPostSelect(post)">{{ post.title }}</h4>
         <p>{{ post.body }}</p>
-        <button (click)="loadComments(post.id)">💭</button>
+        <button (click)="loadComments(post.id)">💬</button>
         <!-- Comments Section -->
         <div
           *ngIf="
