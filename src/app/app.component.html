@@ -1,56 +1,59 @@
-<div class="container">
-  <!-- Header -->
-  <header class="navbar">
-    <div class="header-content">
-      <h1>Twitter Clone</h1>
-      <div class="search-container">
-        <select
-          class="search"
-          [(ngModel)]="selectedUserId"
-          (change)="onUserSelect()"
+<body>
+  <div class="header">
+    <!-- User Selection -->
+    <div class="user-selection">
+      <h1>TWITTER CLONE</h1>
+      <label for="user-select">Select User:</label>
+      <select
+        id="user-select"
+        (change)="onUserSelect($any($event.target).value)"
+      >
+        <option
+          *ngFor="let user of users"
+          [value]="user.id"
+          [selected]="user.id === selectedUser?.id"
         >
-          <option *ngFor="let user of users" [value]="user.id">
-            {{ user.name }}
-          </option>
-        </select>
+          {{ user.username }}
+        </option>
+      </select>
+    </div>
+    <!-- Selected User Info -->
+    <div *ngIf="selectedUser" class="user-info">
+      <h2>{{ selectedUser.name }}</h2>
+      <div class="details">
+        <p>Email: {{ selectedUser.email }}</p>
+        <p>Website: {{ selectedUser.website }}</p>
+        <p>Company: {{ selectedUser.company.name }}</p>
       </div>
     </div>
-  </header>
-
-  <!-- Posts Section -->
-  <div class="posts-container">
-    <div *ngFor="let post of posts" class="post-card">
-      <div class="header">
-        <img src="https://via.placeholder.com/50" alt="Avatar" />
-        <div class="info">
-          <h3 class="username">{{ selectedUser?.name }}</h3>
-          <p>{{ post.title }}</p>
-        </div>
-      </div>
-      <div class="content">
+  </div>
+  <div class="container">
+    <!-- User Posts -->
+    <div *ngIf="posts.length > 0" class="posts-section">
+      <h3>Posts</h3>
+      <div
+        *ngFor="let post of posts"
+        class="post"
+        [class.selected]="post.id === selectedPost?.id"
+      >
+        <h4 (click)="onPostSelect(post)">{{ post.title }}</h4>
         <p>{{ post.body }}</p>
-      </div>
-      <div class="actions">
-        <span>💬 {{ comments.length }}</span>
-        <span>🔁 200</span>
-        <span>❤️ 200</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Comments Section -->
-  <div class="comments-container" *ngIf="comments.length">
-    <div *ngFor="let comment of comments" class="comment-card">
-      <div class="comment-header">
-        <img src="https://via.placeholder.com/50" alt="Avatar" />
-        <div class="comment-user-info">
-          <h3>{{ comment.name }}</h3>
-          <p>{{ comment.email }}</p>
+        <button (click)="loadComments(post.id)">💭</button>
+        <!-- Comments Section -->
+        <div
+          *ngIf="
+            selectedPost?.id === post.id && selectedPostComments.length > 0
+          "
+          class="comments-section"
+        >
+          <span>Comments for "{{ post.title }}"</span>
+          <div *ngFor="let comment of selectedPostComments" class="comment">
+            <h4>{{ comment.name }}</h4>
+            <p>{{ comment.body }}</p>
+            <small>By: {{ comment.email }}</small>
+          </div>
         </div>
       </div>
-      <div class="content">
-        <p>{{ comment.body }}</p>
-      </div>
     </div>
   </div>
-</div>
+</body>

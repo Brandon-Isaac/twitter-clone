@@ -1,72 +1,78 @@
-// app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-
-import { User, Post, Comment } from './interface';
+import { ApiService } from './service/api.service';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './app.component.html',
+  imports: [NgFor, NgIf],
   styleUrls: ['./app.component.css'],
 })
 export class AppComponent implements OnInit {
-  users: User[] = [];
-  posts: Post[] = [];
-  comments: Comment[] = [];
+  users: any[] = [];
+  selectedUser: any = null;
+  posts: any[] = [];
+  selectedPost: any = null;
+  comments: { [postId: number]: any[] } = {}; // Changed to an object to store comments by post ID
+  selectedPostComments: any[] = []; // New property to track comments for the selected post
 
-  selectedUserId: number = 1;
-  selectedUser: User | null = null;
+  constructor(private apiService: ApiService) {}
 
-  private apiUrl = 'https://jsonplaceholder.typicode.com';
-
-  constructor(private http: HttpClient) {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.loadUsers();
   }
 
-  loadUsers() {
-    this.http.get<User[]>(`${this.apiUrl}/users`).subscribe((users) => {
+  loadUsers(): void {
+    this.apiService.getUsers().subscribe((users) => {
       this.users = users;
-      // Set default to first user
-      this.onUserSelect();
+      // Set default user (ID 1)
+      const defaultUser = this.users.find((user) => user.id === 1);
+      if (defaultUser) {
+        this.onUserSelect(defaultUser.id);
+      }
     });
   }
 
-  onUserSelect() {
-    // Find selected user
-    const user = this.users.find((u) => u.id === this.selectedUserId);
+  onUserSelect(userId: number | string): void {
+    // Convert string to number if needed
+    const id = typeof userId === 'string' ? parseInt(userId, 10) : userId;
 
-    if (user) {
-      this.selectedUser = user;
-      this.loadUserPosts(user.id);
+    const user = this.users.find((u) => u.id === id);
+    if (!user) return;
+
+    this.selectedUser = user;
+    this.posts = [];
+    this.comments = {};
+    this.selectedPostComments = [];
+
+    this.apiService.getUserPosts(id).subscribe((posts) => {
+      this.posts = posts;
+      // Set default post (first post)
+      if (this.posts.length > 0) {
+        this.selectedPost = this.posts[0];
+      }
+    });
+  }
+
+  onPostSelect(post: any): void {
+    this.selectedPost = post;
+    this.selectedPostComments = []; // Clear comments when selecting a new post
+  }
+
+  loadComments(postId: number): void {
+    // If comments for this post are not already loaded, fetch them
+    if (!this.comments[postId]) {
+      this.apiService.getPostComments(postId).subscribe((comments) => {
+        // Store comments for this specific post
+        this.comments[postId] = comments;
+        // Set the selected post's comments
+        this.selectedPostComments = comments;
+        this.selectedPost = this.posts.find((post) => post.id === postId);
+      });
+    } else {
+      // If comments are already loaded, just set them
+      this.selectedPostComments = this.comments[postId];
+      this.selectedPost = this.posts.find((post) => post.id === postId);
     }
-  }
-
-  loadUserPosts(userId: number) {
-    this.http
-      .get<Post[]>(`${this.apiUrl}/posts?userId=${userId}`)
-      .subscribe((posts) => {
-        this.posts = posts;
-
-        // Load comments for first post if posts exist
-        if (posts.length > 0) {
-          this.loadPostComments(posts[0].id);
-        } else {
-          this.comments = [];
-        }
-      });
-  }
-
-  loadPostComments(postId: number) {
-    this.http
-      .get<Comment[]>(`${this.apiUrl}/comments?postId=${postId}`)
-      .subscribe((comments) => {
-        this.comments = comments;
-      });
   }
 }
